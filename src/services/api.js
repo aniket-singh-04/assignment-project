@@ -1,7 +1,7 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 /**
- * Base fetch client that adds authorization headers and handles JSON parsing.
+ * Base fetch client that adds authorization headers and handles 401 unauth session expiry.
  */
 export async function fetchClient(endpoint, options = {}) {
   const token = localStorage.getItem('token');
@@ -20,6 +20,15 @@ export async function fetchClient(endpoint, options = {}) {
     ...options,
     headers,
   });
+
+  if (response.status === 401) {
+    // Session token expired or invalid - auto logout & clear storage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
+  }
 
   let data;
   try {
