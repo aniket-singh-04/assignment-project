@@ -97,7 +97,7 @@ export default function Profile() {
     : 'bg-[#FFFFFF] border-[#232323]/20 text-[#232323] placeholder-[#232323]/40 focus:border-[#1D5DEC]';
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
+    <div className="w-full min-w-0 max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
       
       {/* Header Hero Card */}
       <GlassCard className="p-8 relative overflow-hidden !rounded-3xl border border-[#FFFFFF]/15 shadow-2xl">

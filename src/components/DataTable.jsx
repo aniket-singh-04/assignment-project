@@ -15,7 +15,7 @@ export default function DataTable({ columns, data, sortConfig, onSort }) {
   }
 
   return (
-    <GlassCard className="overflow-x-auto !p-0">
+    <GlassCard className="w-full max-w-full overflow-x-auto !p-0">
       <table className="min-w-full divide-y divide-[#FFFFFF]/10">
         <thead className={isDark ? 'bg-[#000000]/30' : 'bg-[#232323]/5'}>
           <tr>

@@ -1,14 +1,16 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import GlassCard from './GlassCard';
-import { FiGrid, FiUsers, FiShoppingBag, FiUser, FiLogOut, FiShield } from 'react-icons/fi';
+import { FiGrid, FiUsers, FiShoppingBag, FiUser, FiLogOut, FiShield, FiMenu, FiX, FiSidebar } from 'react-icons/fi';
 
 export default function Sidebar({ links }) {
   const location = useLocation();
   const { theme } = useTheme();
   const { user, logout } = useAuth();
   const isDark = theme === 'dark';
+  const [isOpenMobile, setIsOpenMobile] = useState(false);
 
   const getIcon = (label) => {
     const l = label.toLowerCase();
@@ -19,14 +21,22 @@ export default function Sidebar({ links }) {
     return <FiShield className="w-4 h-4" />;
   };
 
-  return (
-    <GlassCard className="w-64 min-h-[calc(100vh-4.5rem)] p-5 flex flex-col justify-between hidden md:flex !rounded-none !border-y-0 !border-l-0 shadow-lg shrink-0">
+  const SidebarContent = () => (
+    <div className="flex flex-col justify-between h-full space-y-6">
       <div className="space-y-6">
-        {/* Navigation Section Title */}
-        <div className="px-3 pt-2">
+        {/* Navigation Section Title & Mobile Close */}
+        <div className="flex items-center justify-between px-3 pt-2">
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#FE2C54]">
             Main Menu
           </span>
+          {/* Mobile Close Button */}
+          <button 
+            onClick={() => setIsOpenMobile(false)}
+            className="md:hidden p-1.5 rounded-lg opacity-70 hover:opacity-100 transition-opacity"
+            aria-label="Close menu"
+          >
+            <FiX className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Links List */}
@@ -37,7 +47,8 @@ export default function Sidebar({ links }) {
               <Link
                 key={idx}
                 to={link.path}
-                className={`px-4 py-3 rounded-xl transition-all font-bold text-sm flex items-center gap-3 border ${
+                onClick={() => setIsOpenMobile(false)}
+                className={`px-4 py-3 rounded-2xl transition-all font-bold text-sm flex items-center gap-3 border ${
                   isActive 
                     ? 'bg-[#1D5DEC] text-[#FFFFFF] shadow-md border-transparent scale-[1.02]' 
                     : (isDark 
@@ -72,7 +83,10 @@ export default function Sidebar({ links }) {
             </div>
           </div>
           <button
-            onClick={logout}
+            onClick={() => {
+              setIsOpenMobile(false);
+              logout();
+            }}
             className={`w-full py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all ${
               isDark 
                 ? 'border-[#FE2C54]/30 text-[#FE2C54] hover:bg-[#FE2C54]/20' 
@@ -84,6 +98,48 @@ export default function Sidebar({ links }) {
           </button>
         </div>
       )}
-    </GlassCard>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Mobile Menu Toggle Button */}
+      <div className="md:hidden w-full mb-4">
+        <button
+          onClick={() => setIsOpenMobile(true)}
+          className={`w-full py-3 px-4 rounded-2xl border flex items-center justify-between font-bold text-sm shadow-md transition-all ${
+            isDark 
+              ? 'bg-[#232323]/70 border-[#FFFFFF]/15 text-[#FFFFFF]' 
+              : 'bg-[#FFFFFF]/90 border-[#232323]/15 text-[#232323]'
+          }`}
+        >
+          <div className="flex items-center gap-2 text-[#1D5DEC]">
+            <FiSidebar className="w-5 h-5" />
+            <span>Open Navigation Menu</span>
+          </div>
+          <FiMenu className="w-5 h-5 opacity-70" />
+        </button>
+      </div>
+
+      {/* Mobile Drawer Backdrop & Floating Drawer */}
+      {isOpenMobile && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          <div 
+            className="fixed inset-0 bg-[#000000]/60 backdrop-blur-sm animate-in fade-in duration-200"
+            onClick={() => setIsOpenMobile(false)}
+          />
+          <div className="relative z-10 w-72 max-w-[calc(100vw-2rem)] my-4 ml-4 flex-1 animate-in slide-in-from-left duration-300">
+            <GlassCard className="h-[calc(100vh-2rem)] p-5 !rounded-3xl shadow-2xl overflow-y-auto border border-[#FFFFFF]/15">
+              <SidebarContent />
+            </GlassCard>
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Floating Sidebar with Rounded Corners */}
+      <GlassCard className="w-64 min-h-[calc(100vh-6rem)] p-5 hidden md:flex flex-col justify-between !rounded-3xl shadow-xl shrink-0 my-1 mr-4 border border-[#FFFFFF]/15">
+        <SidebarContent />
+      </GlassCard>
+    </>
   );
 }

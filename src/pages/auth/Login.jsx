@@ -44,7 +44,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-6rem)] flex items-center justify-center py-6 sm:py-10">
+    <div className="w-full min-w-0 min-h-[calc(100vh-6rem)] flex items-center justify-center py-6 sm:py-10">
       <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-stretch animate-in fade-in slide-in-from-bottom-4 duration-500">
         
         {/* Branding Box (Equal size & rounded box matching the form box) */}

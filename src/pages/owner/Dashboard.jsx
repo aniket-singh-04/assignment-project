@@ -70,9 +70,9 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="flex -mt-4 sm:-mt-6 lg:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="flex flex-col md:flex-row w-full min-w-0 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Sidebar links={links} />
-      <div className="flex-1 p-6 md:p-8">
+      <div className="flex-1 min-w-0 p-4 md:p-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
             <h2 className={`text-3xl font-extrabold tracking-tight ${isDark ? 'text-[#FFFFFF]' : 'text-[#232323]'}`}>

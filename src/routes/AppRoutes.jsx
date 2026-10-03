@@ -21,9 +21,9 @@ export default function AppRoutes() {
   const { user } = useAuth();
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col w-full overflow-x-hidden">
       <Navbar />
-      <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+      <main className="w-full flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 min-w-0">
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
@@ -64,7 +64,7 @@ export default function AppRoutes() {
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }
