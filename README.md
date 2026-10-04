@@ -4,7 +4,7 @@ A full-stack Web Application designed for managing stores, submitting user ratin
 
 ---
 
-## Monorepo Architecture
+## Architecture
 
 ```
 Roxiler/
