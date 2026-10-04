@@ -76,7 +76,7 @@ export default function Stores() {
         </div>
       ) 
     },
-    { header: 'Owner', accessor: row => row.ownerName || row.ownerId || '-' },
+    { header: 'Owner', accessor: row => row.ownerName || row.owner_id || '-' },
   ];
 
   const inputStyle = isDark 
