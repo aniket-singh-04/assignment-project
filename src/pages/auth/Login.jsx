@@ -18,9 +18,15 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(LoginSchema)
   });
+  
+  // test credentials quick fill function
+  const handleDemoFill = (email, password) => {
+    setValue('email', email, { shouldValidate: true });
+    setValue('password', password, { shouldValidate: true });
+  };
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -84,7 +90,7 @@ export default function Login() {
         {/* Form Box */}
         <GlassCard className="p-8 flex flex-col justify-between !rounded-2xl">
           <div>
-            <div className="mb-8 text-center lg:text-left">
+            <div className="mb-6 text-center lg:text-left">
               <div className="lg:hidden flex justify-center mb-4">
                 <div className="bg-[#D90166] text-[#FFFFFF] p-2.5 rounded-xl shadow-md">
                   <FiStar className="w-7 h-7 fill-current" />
@@ -93,6 +99,34 @@ export default function Login() {
               <h2 className={`text-3xl font-extrabold tracking-tight ${isDark ? 'text-[#FFFFFF]' : 'text-[#232323]'}`}>Welcome back</h2>
               <p className={isDark ? 'text-[#FFFFFF]/70 mt-1.5 text-sm' : 'text-[#232323]/70 mt-1.5 text-sm'}>Please enter your details to sign in.</p>
             </div>
+            {/* Test Credentials Quick Fill Buttons */}
+            <div className={`mb-6 p-3 rounded-xl border ${isDark ? 'bg-[#232323]/50 border-[#FFFFFF]/10' : 'bg-[#F4F4F5] border-[#232323]/10'}`}>
+              <span className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80">Test Credentials (Click to auto-fill)</span>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleDemoFill('admin@gmail.com', 'Admin@123')}
+                  className="px-2 py-1.5 rounded-lg text-xs font-semibold bg-[#1D5DEC]/20 hover:bg-[#1D5DEC]/40 text-[#1D5DEC] transition-colors text-center border border-[#1D5DEC]/30"
+                >
+                  Super Admin
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDemoFill('john@gmail.com', 'Jhon@12345')}
+                  className="px-2 py-1.5 rounded-lg text-xs font-semibold bg-[#D90166]/20 hover:bg-[#D90166]/40 text-[#D90166] transition-colors text-center border border-[#D90166]/30"
+                >
+                  Store Owner
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDemoFill('alex@gmail.com', 'Admin@123')}
+                  className="px-2 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-500 transition-colors text-center border border-emerald-500/30"
+                >
+                  Normal User
+                </button>
+              </div>
+            </div>
+            {/*test cred end */}
             
             {serverError && (
               <div className="bg-[#FE2C54]/20 border-l-4 border-[#FE2C54] text-[#FE2C54] p-4 rounded-xl mb-6 shadow-sm text-sm font-medium">
@@ -119,7 +153,7 @@ export default function Login() {
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="block text-sm font-semibold opacity-90">Password</label>
-                  <a href="#" className="text-xs font-semibold text-[#1D5DEC] hover:text-[#D90166] transition-colors">Forgot password?</a>
+                  {/* <a href="#" className="text-xs font-semibold text-[#1D5DEC] hover:text-[#D90166] transition-colors">Forgot password?</a> */}
                 </div>
                 <input 
                   {...register('password')} 
