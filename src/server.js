@@ -23,6 +23,11 @@ const startServer = async () => {
       : false,
   });
 
+  if (connectionString?.includes('.supabase.co') && !connectionString?.includes('pooler.supabase.com')) {
+    console.warn('\n⚠️ WARNING: Direct Supabase hostname (db.xxxx.supabase.co) only supports IPv6 on free tier.');
+    console.warn('⚠️ Render uses IPv4. Please switch your DATABASE_URL in Render to the Supabase Connection Pooler URL (aws-0-....pooler.supabase.com:6543).\n');
+  }
+
   try {
     console.log('⏳  Connecting to the database...');
     await dbClient.connect();
@@ -33,8 +38,13 @@ const startServer = async () => {
       console.log(`✅  Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
     });
   } catch (error) {
-    console.error('❌  Database connection failed. Server will not start.');
+    console.error('❌  Database connection failed.');
     console.error(error.message);
+    if (connectionString?.includes('.supabase.co')) {
+      console.error('\n👉 FIX FOR SUPABASE FREE TIER ON RENDER:');
+      console.error('Go to Supabase Dashboard -> Settings -> Database -> Connection String -> Pooler / Transaction');
+      console.error('Use the pooler URL: postgresql://postgres.[ref]:[pass]@aws-0-[region].pooler.supabase.com:6543/postgres?sslmode=require\n');
+    }
     process.exit(1);
   }
 };
