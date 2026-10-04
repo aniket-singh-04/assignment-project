@@ -1,112 +1,134 @@
 # Store Rating Platform — Backend
 
-A production-oriented REST API built with **Node.js**, **Express.js**, **Prisma**, and **PostgreSQL**.
+A production-oriented REST API built with **Node.js**, **Express.js**, **Prisma ORM**, and **PostgreSQL**.
 
 ---
 
 ## Tech Stack
 
-| Layer       | Technology              |
-|-------------|-------------------------|
-| Runtime     | Node.js (ES Modules)    |
-| Framework   | Express.js              |
-| ORM         | Prisma                  |
-| Database    | PostgreSQL              |
-| Auth        | JWT + Argon2 *(phase 2)*|
-| Validation  | Zod *(phase 2)*         |
+| Layer       | Technology                   |
+|-------------|------------------------------|
+| Runtime     | Node.js (ES Modules)         |
+| Framework   | Express.js                   |
+| ORM         | Prisma                       |
+| Database    | PostgreSQL                   |
+| Auth        | JWT + Cookie Parser + Argon2 |
+| Validation  | Zod                          |
+| Testing     | Jest + Supertest             |
 
 ---
 
 ## Project Structure
 
 ```
-store-rating-platform-backend/
-│
-├── src/
-│   ├── config/           # Environment / DB config helpers
-│   ├── controllers/      # Route handler functions
-│   ├── middlewares/      # Express middleware (error, auth, etc.)
-│   ├── routes/           # Express routers
-│   ├── services/         # Business logic
-│   ├── repositories/     # Database access layer (Prisma)
-│   ├── validators/       # Zod schemas
-│   ├── utils/            # Shared helper utilities
-│   ├── app.js            # Express app setup
-│   └── server.js         # HTTP server + graceful shutdown
-│
+backend/
 ├── prisma/
-│   └── schema.prisma     # Database schema (phase 2)
-│
-├── .env.example
-├── .gitignore
-├── .prettierrc
-├── eslint.config.js
-├── package.json
+│   └── schema.prisma         # Prisma database schema & models
+├── src/
+│   ├── config/               # Environment & DB initialization
+│   ├── controllers/          # Express route controllers (Auth, Store, Rating, Admin, Owner)
+│   ├── db/                   # Database seed script
+│   ├── middlewares/          # Custom middleware (Auth, Error handler, Validation, NotFound)
+│   ├── repositories/         # Prisma database query abstraction layer
+│   ├── routes/               # Express API endpoint definitions
+│   ├── services/             # Application business logic
+│   ├── validators/           # Zod schema validation rules
+│   ├── app.js                # Express app setup & middleware pipeline
+│   └── server.js             # HTTP server entry point & shutdown handlers
+├── tests/                    # Integration & unit test suites
+├── .env.example              # Environment variables template
+├── eslint.config.js          # ESLint configuration
+├── jest.config.js            # Jest testing configuration
+├── package.json              # Backend dependencies & npm scripts
 └── README.md
 ```
 
 ---
 
-## Getting Started
+## Setup & Getting Started
 
-### 1. Clone & install
+### 1. Navigate to directory & install dependencies
 
 ```bash
+cd backend
 pnpm install
 ```
 
-### 2. Configure environment
+### 2. Environment Setup
+
+Copy `.env.example` to `.env` and adjust your environment configuration:
 
 ```bash
 cp .env.example .env
-# Edit .env with your PostgreSQL credentials
 ```
 
-### 3. Run in development
+Ensure `DATABASE_URL` matches your PostgreSQL connection string:
+```env
+PORT=5000
+DATABASE_URL="postgresql://user:password@localhost:5432/storerating?schema=public"
+JWT_SECRET="your_jwt_secret_key"
+NODE_ENV="development"
+```
+
+### 3. Database Migration & Seed
+
+Generate Prisma client, apply database migrations, and seed initial data:
 
 ```bash
-pnpm dev
+pnpm prisma:generate
+pnpm prisma:migrate
+pnpm seed
 ```
 
-### 4. Health check
+### 4. Running the Server
 
-```
+- **Development Mode** (with hot reloading via Nodemon):
+  ```bash
+  pnpm dev
+  ```
+- **Production Mode**:
+  ```bash
+  pnpm start
+  ```
+
+### 5. Health Check Endpoint
+
+```http
 GET http://localhost:5000/health
 ```
 
+**Response:**
 ```json
-{ "success": true, "message": "Server is healthy" }
+{
+  "success": true,
+  "message": "Server is healthy"
+}
 ```
 
 ---
 
-## Scripts
+## Available Scripts
 
-| Command                | Description                        |
-|------------------------|------------------------------------|
-| `pnpm dev`             | Start with nodemon (hot reload)    |
-| `pnpm start`           | Start for production               |
-| `pnpm lint`            | Run ESLint                         |
-| `pnpm format`          | Format with Prettier               |
-| `pnpm prisma:generate` | Generate Prisma client             |
-| `pnpm prisma:migrate`  | Run database migrations            |
+| Script                | Description                                       |
+|-----------------------|---------------------------------------------------|
+| `pnpm dev`            | Start server in development mode (Nodemon)        |
+| `pnpm start`          | Start server in production mode                   |
+| `pnpm build`          | Generate Prisma client artifacts                  |
+| `pnpm seed`           | Seed database with default data                   |
+| `pnpm test`           | Execute test suite with Jest                      |
+| `pnpm lint`           | Run ESLint checks                                 |
+| `pnpm format`         | Format source code with Prettier                  |
+| `pnpm prisma:generate`| Regenerate Prisma Client                          |
+| `pnpm prisma:migrate` | Run development database migrations               |
+| `pnpm prisma:deploy`  | Deploy migrations to production database          |
 
 ---
 
-## Dependencies
+## API Capabilities
 
-| Package          | Purpose                                           |
-|------------------|---------------------------------------------------|
-| `express`        | Web framework                                     |
-| `cors`           | Cross-Origin Resource Sharing headers             |
-| `helmet`         | Security HTTP headers                             |
-| `dotenv`         | Load `.env` variables                             |
-| `morgan`         | HTTP request logging                              |
-| `jsonwebtoken`   | JWT creation & verification *(phase 2)*           |
-| `argon2`         | Password hashing *(phase 2)*                      |
-| `zod`            | Schema validation *(phase 2)*                     |
-| `@prisma/client` | Generated Prisma database client                  |
-| `prisma`         | Prisma CLI — migrations & schema management       |
-| `nodemon`        | Auto-restart server on file change (dev only)     |
-| `eslint`         | JavaScript linter                                 |
-| `prettier`       | Code formatter                                    |
+- **Auth System**: User Registration, Login, Logout, JWT-based Authentication.
+- **Role-Based Access Control**:
+  - **Admin**: Manage stores, system users, view system metrics & analytics.
+  - **Owner**: View owned store details, store ratings, user reviews & statistics.
+  - **User**: Search & filter stores, submit and edit ratings/reviews, update profile.
+- **Validation**: Strict request payload validation powered by Zod.
