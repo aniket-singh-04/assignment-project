@@ -1,14 +1,26 @@
 // src/server.js
 import 'dotenv/config';
+import dns from 'node:dns';
 import pg from 'pg';
 import app from './app.js';
+
+// Force Node.js to resolve IPv4 addresses first to avoid ENETUNREACH on IPv6-only DNS responses
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 const PORT = process.env.PORT || 5000;
 let server;
 
 const startServer = async () => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const connectionString = process.env.DATABASE_URL;
+
   const dbClient = new pg.Client({
-    connectionString: process.env.DATABASE_URL,
+    connectionString,
+    ssl: connectionString?.includes('sslmode=require') || connectionString?.includes('supabase') || connectionString?.includes('neon') || isProduction
+      ? { rejectUnauthorized: false }
+      : false,
   });
 
   try {
