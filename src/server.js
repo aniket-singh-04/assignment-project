@@ -14,19 +14,16 @@ let server;
 
 const startServer = async () => {
   const isProduction = process.env.NODE_ENV === 'production';
-  const rawConnectionString = process.env.DATABASE_URL || '';
-
-  // Remove sslmode parameter from connection string so pg doesn't override rejectUnauthorized: false
-  const connectionString = rawConnectionString.replace(/([?&])sslmode=[^&]*(&|$)/, '$1').replace(/[?&]$/, '');
-
-  const isCloudDb = rawConnectionString.includes('supabase') || rawConnectionString.includes('neon') || isProduction;
+  const connectionString = process.env.DATABASE_URL;
 
   const dbClient = new pg.Client({
     connectionString,
-    ssl: isCloudDb ? { rejectUnauthorized: false } : false,
+    ssl: connectionString?.includes('sslmode=require') || connectionString?.includes('supabase') || connectionString?.includes('neon') || isProduction
+      ? { rejectUnauthorized: false }
+      : false,
   });
 
-  if (rawConnectionString.includes('.supabase.co') && !rawConnectionString.includes('pooler.supabase.com')) {
+  if (connectionString?.includes('.supabase.co') && !connectionString?.includes('pooler.supabase.com')) {
     console.warn('\n⚠️ WARNING: Direct Supabase hostname (db.xxxx.supabase.co) only supports IPv6 on free tier.');
     console.warn('⚠️ Render uses IPv4. Please switch your DATABASE_URL in Render to the Supabase Connection Pooler URL (aws-0-....pooler.supabase.com:6543).\n');
   }
