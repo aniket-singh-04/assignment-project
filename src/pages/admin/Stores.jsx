@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchAdminStores } from '../../services/adminApi';
+import { fetchAdminStores, deleteStore } from '../../services/adminApi';
 import { useTheme } from '../../context/ThemeContext';
 import Sidebar from '../../components/Sidebar';
 import DataTable from '../../components/DataTable';
 import Pagination from '../../components/Pagination';
 import GlassCard from '../../components/GlassCard';
 import CreateStoreModal from '../../components/CreateStoreModal';
-import { FiSearch, FiFilter, FiStar, FiPlus } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiStar, FiPlus, FiTrash2 } from 'react-icons/fi';
 
 export default function Stores() {
   const { theme } = useTheme();
@@ -16,6 +16,7 @@ export default function Stores() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
   
   // Specific filters
   const [nameFilter, setNameFilter] = useState('');
@@ -57,6 +58,22 @@ export default function Stores() {
     setPage(1);
   };
 
+  const handleDeleteStore = async (store) => {
+    if (!window.confirm(`Are you sure you want to delete the store "${store.name}"? All associated ratings for this store will also be deleted.`)) {
+      return;
+    }
+
+    try {
+      setDeletingId(store.id);
+      await deleteStore(store.id);
+      loadData();
+    } catch (err) {
+      alert(err.message || 'Failed to delete store');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const links = [
     { label: 'Dashboard', path: '/admin/dashboard' },
     { label: 'Users', path: '/admin/users' },
@@ -77,6 +94,19 @@ export default function Stores() {
       ) 
     },
     { header: 'Owner', accessor: row => row.ownerName || row.owner_id || '-' },
+    {
+      header: 'Actions',
+      accessor: row => (
+        <button
+          onClick={() => handleDeleteStore(row)}
+          disabled={deletingId === row.id}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#FE2C54]/30 text-[#FE2C54] hover:bg-[#FE2C54]/10 font-semibold text-xs transition-colors disabled:opacity-50"
+        >
+          <FiTrash2 className="w-3.5 h-3.5" />
+          <span>{deletingId === row.id ? 'Deleting...' : 'Delete'}</span>
+        </button>
+      )
+    }
   ];
 
   const inputStyle = isDark 

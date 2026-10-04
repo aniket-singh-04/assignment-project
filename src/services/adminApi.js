@@ -58,3 +58,15 @@ export const createStore = async (storeData) => {
 export const fetchUserDetails = async (userId) => {
   return await fetchClient(`/admin/users/${userId}`);
 };
+
+export const deleteUser = async (userId) => {
+  return await fetchClient(`/admin/users/${userId}`, {
+    method: 'DELETE',
+  });
+};
+
+export const deleteStore = async (storeId) => {
+  return await fetchClient(`/admin/stores/${storeId}`, {
+    method: 'DELETE',
+  });
+};

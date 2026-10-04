@@ -1,21 +1,24 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchUsers } from '../../services/adminApi';
+import { fetchUsers, deleteUser } from '../../services/adminApi';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 import Sidebar from '../../components/Sidebar';
 import DataTable from '../../components/DataTable';
 import Pagination from '../../components/Pagination';
 import GlassCard from '../../components/GlassCard';
 import CreateUserModal from '../../components/CreateUserModal';
-import { FiSearch, FiFilter, FiEye, FiX, FiStar, FiUserCheck, FiPlus } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiEye, FiX, FiStar, FiUserCheck, FiPlus, FiTrash2 } from 'react-icons/fi';
 
 export default function Users() {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+  const { user: currentUser } = useAuth();
 
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
   
   // Specific filters
   const [nameFilter, setNameFilter] = useState('');
@@ -60,6 +63,28 @@ export default function Users() {
     setPage(1);
   };
 
+  const handleDeleteUser = async (targetUser) => {
+    if (targetUser.id === currentUser?.id) {
+      alert('Super admin cannot delete their own account.');
+      return;
+    }
+    const confirmMsg = targetUser.role === 'OWNER' 
+      ? `Are you sure you want to delete "${targetUser.name}"? This will also delete their store and all associated ratings.`
+      : `Are you sure you want to delete "${targetUser.name}"? This will also delete all their ratings.`;
+
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      setDeletingId(targetUser.id);
+      await deleteUser(targetUser.id);
+      loadData();
+    } catch (err) {
+      alert(err.message || 'Failed to delete user');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const links = [
     { label: 'Dashboard', path: '/admin/dashboard' },
     { label: 'Users', path: '/admin/users' },
@@ -96,15 +121,33 @@ export default function Users() {
     },
     {
       header: 'Actions',
-      accessor: row => (
-        <button
-          onClick={() => setSelectedUser(row)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#1D5DEC]/30 text-[#1D5DEC] hover:bg-[#1D5DEC]/10 font-semibold text-xs transition-colors"
-        >
-          <FiEye className="w-3.5 h-3.5" />
-          <span>Details</span>
-        </button>
-      )
+      accessor: row => {
+        const isSelf = row.id === currentUser?.id;
+        return (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSelectedUser(row)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#1D5DEC]/30 text-[#1D5DEC] hover:bg-[#1D5DEC]/10 font-semibold text-xs transition-colors"
+            >
+              <FiEye className="w-3.5 h-3.5" />
+              <span>Details</span>
+            </button>
+            <button
+              onClick={() => handleDeleteUser(row)}
+              disabled={isSelf || deletingId === row.id}
+              title={isSelf ? 'Cannot delete your own admin account' : 'Delete user'}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold text-xs transition-colors border ${
+                isSelf 
+                  ? 'border-gray-500/20 text-gray-400 bg-gray-500/10 cursor-not-allowed opacity-50' 
+                  : 'border-[#FE2C54]/30 text-[#FE2C54] hover:bg-[#FE2C54]/10 disabled:opacity-50'
+              }`}
+            >
+              <FiTrash2 className="w-3.5 h-3.5" />
+              <span>{deletingId === row.id ? 'Deleting...' : isSelf ? 'You' : 'Delete'}</span>
+            </button>
+          </div>
+        );
+      }
     }
   ];
 
